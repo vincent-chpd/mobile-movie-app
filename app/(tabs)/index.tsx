@@ -5,6 +5,7 @@ import { images } from '@/constants/images';
 import { fetchMovies } from '@/services/api';
 import useFetch from '@/services/useFetch';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -15,6 +16,8 @@ import {
 } from 'react-native';
 
 export default function Index() {
+  const [searchQuery, setSearchQuery] = useState('');
+
   const router = useRouter();
 
   const {
@@ -23,7 +26,7 @@ export default function Index() {
     error: movieError,
   } = useFetch(() =>
     fetchMovies({
-      query: 'spiderman',
+      query: '',
     }),
   );
 
@@ -55,6 +58,8 @@ export default function Index() {
             <SearchBar
               onPress={() => router.push('/search')}
               placeholder="Search for a movie"
+              onChangeText={(text) => setSearchQuery(text)}
+              value={searchQuery}
             />
 
             <Text className="text-lg text-white font-bold mt-5 mb-3">
