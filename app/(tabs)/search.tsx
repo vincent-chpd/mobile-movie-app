@@ -3,6 +3,7 @@ import MovieCard from '@/components/MovieCard';
 import SearchBar from '@/components/SearchBar';
 import { icons } from '@/constants/icons';
 import { images } from '@/constants/images';
+import { updateSearchCount } from '@/lib/appwrite';
 import { fetchMovies } from '@/services/api';
 import useFetch from '@/services/useFetch';
 import React, { useEffect, useState } from 'react';
@@ -36,6 +37,11 @@ const Search = () => {
 
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
+
+  useEffect(() => {
+    if (movies?.length > 0 && movies?.[0])
+      updateSearchCount(searchQuery, movies[0]);
+  }, [movies]);
 
   return (
     <View className="flex-1 bg-primary">

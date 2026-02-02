@@ -22,7 +22,7 @@ const MovieCard = ({
           className="w-full h-52 rounded-lg"
           resizeMode="cover"
         />
-        <Text className="text-sm text-white font-bold" numberOfLines={1}>
+        <Text className="text-sm text-white font-bold mt-1" numberOfLines={1}>
           {title}
         </Text>
         <View className="flex-row items-center justify-start gap-x-1">
