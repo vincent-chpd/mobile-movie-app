@@ -1,8 +1,10 @@
 import { icons } from '@/constants/icons';
 import { fetchMoviesDetails } from '@/services/api';
 import useFetch from '@/services/useFetch';
+import { MaterialIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 interface MovieInfoProps {
@@ -20,15 +22,53 @@ const MovieInfo = ({ label, value }: MovieInfoProps) => (
 );
 
 const MovieDetails = () => {
+  const [isSaved, setIsSaved] = useState(false);
+
   const { id } = useLocalSearchParams();
 
-  const { data: movie, loading } = useFetch(() =>
-    fetchMoviesDetails(id as string),
-  );
+  const { data: movie } = useFetch(() => fetchMoviesDetails(id as string));
+
+  useEffect(() => {
+    checkIfSaved();
+  }, []);
+
+  const checkIfSaved = async () => {
+    try {
+      const saved = await AsyncStorage.getItem('savedMovies');
+      const savedArray = saved ? JSON.parse(saved) : [];
+      setIsSaved(savedArray.includes(Number(id))); // Convert to number
+    } catch (error) {
+      console.error('Error checking saved status:', error);
+    }
+  };
+
+  const toggleSave = async () => {
+    try {
+      const saved = await AsyncStorage.getItem('savedMovies');
+      const savedArray = saved ? JSON.parse(saved) : [];
+      const movieId = Number(id); // Convert to number
+
+      if (savedArray.includes(movieId)) {
+        // Remove from saved
+        const updated = savedArray.filter(
+          (savedId: number) => savedId !== movieId,
+        );
+        await AsyncStorage.setItem('savedMovies', JSON.stringify(updated));
+        setIsSaved(false);
+      } else {
+        // Add to saved
+        savedArray.push(movieId);
+        await AsyncStorage.setItem('savedMovies', JSON.stringify(savedArray));
+        setIsSaved(true);
+      }
+    } catch (error) {
+      console.error('Error toggling save:', error);
+    }
+  };
 
   return (
     <View className="bg-primary flex-1">
-      <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 90 }}>
         <View>
           <Image
             source={{
@@ -38,8 +78,25 @@ const MovieDetails = () => {
             resizeMode="stretch"
           />
         </View>
+
         <View className="flex-col items-start justify-center mt-5 px-5">
-          <Text className="text-white font-bold text-xl">{movie?.title}</Text>
+          <View className="flex-row justify-between items-start w-full">
+            <Text className="text-white font-bold text-xl max-w-[90%]">
+              {movie?.title}
+            </Text>
+            <TouchableOpacity
+              onPress={(e) => {
+                e.preventDefault();
+                toggleSave();
+              }}
+            >
+              <MaterialIcons
+                name={isSaved ? 'bookmark' : 'bookmark-outline'}
+                size={32}
+                color="#ab8bff"
+              />
+            </TouchableOpacity>
+          </View>
           <View className=" flex-row items-center gap-x-1 mt-2">
             <Text className="text-accentText text-sm">
               {movie?.release_date.split('-')[0]}
