@@ -1,4 +1,11 @@
-import { Client, Databases, ID, Query } from 'react-native-appwrite';
+import {
+  Account,
+  Client,
+  Databases,
+  ID,
+  Query,
+  Storage,
+} from 'react-native-appwrite';
 
 const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID!;
 const TABLE_ID = process.env.EXPO_PUBLIC_APPWRITE_TABLE_ID!;
@@ -9,6 +16,8 @@ const client = new Client()
   .setPlatform('com.movieflix.app');
 
 export const databases = new Databases(client);
+export const account = new Account(client);
+export const storage = new Storage(client);
 
 export default client;
 

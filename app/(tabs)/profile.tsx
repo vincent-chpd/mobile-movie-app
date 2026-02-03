@@ -1,16 +1,32 @@
-import { icons } from '@/constants/icons';
-import React from 'react';
-import { Image, Text, View } from 'react-native';
+import { useAuth } from '@/context/AuthContext';
+import { signInWithGoogle, signOut } from '@/services/auth';
+import { router } from 'expo-router';
+import { Text, TouchableOpacity, View } from 'react-native';
 
-const Profile = () => {
-  return (
-    <View className="bg-primary flex-1 px-10">
-      <View className="flex justify-center items-center flex-1 flex-col gap-5">
-        <Image source={icons.person} className="size-10" tintColor="#fff" />
-        <Text className="text-gray-500 text-base">Profile</Text>
+export default function Profile() {
+  const { user, setUser } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    setUser(null);
+    router.replace('/auth/sign-in');
+  };
+
+  if (!user) {
+    return (
+      <View className="flex flex-1 bg-primary justify-center items-center">
+        <TouchableOpacity onPress={() => signInWithGoogle()}>
+          <Text className="text-white font-bold">Sign in with Google</Text>
+        </TouchableOpacity>
       </View>
+    );
+  }
+
+  return (
+    <View className="flex flex-1 bg-primary">
+      <TouchableOpacity onPress={handleSignOut}>
+        <Text>Sign Out</Text>
+      </TouchableOpacity>
     </View>
   );
-};
-
-export default Profile;
+}
